@@ -6,8 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transacoes")
@@ -21,21 +23,21 @@ public class Transacao {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
-    @Column(name = "tipo_transacao", nullable = false)
+    @Column(nullable = false)
     private TipoTransacao tipoTransacao;
 
-    @NotNull(message = "Saldo é obrigatório")
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal valor;
 
+    @CreationTimestamp
+    @Column(nullable = false,updatable = false)
+    private LocalDateTime dataHoraTransacao;
+
     @ManyToOne
-    @NotNull
     @JoinColumn(name = "fk_conta_origem_conta", nullable = false)
     private Conta contaOrigem;
 
     @ManyToOne
     @JoinColumn(name = "fk_conta_destino_conta")
     private Conta contaDestino;
-
 }
