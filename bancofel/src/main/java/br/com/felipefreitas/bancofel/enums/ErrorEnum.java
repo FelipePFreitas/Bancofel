@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum ErrorEnum {
     // Erros de Cliente (Faixa 0-9)
     CPF_INVALIDO(400, 0, "CPF inválido"),
-    CLIENTE_JA_CADASTRADO(400, 1, "Cadastro do já existente"),
+    CLIENTE_JA_CADASTRADO(400, 1, "Cadastro do cliente já existente"),
     CARACTERES_ACIMA(400, 2, "Excesso de caracteres"),
     NULO_BRANCO(400, 3, "Não pode estar em branco ou nulo"),
     CPF_NULO_BRANCO(400, 4, "O CPF não pode estar em branco ou nulo"),

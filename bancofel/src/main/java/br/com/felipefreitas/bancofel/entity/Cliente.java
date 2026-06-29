@@ -50,4 +50,7 @@ public class Cliente {
 
     @Column(nullable = false, length = 50)
     private String estado;
+
+    @Column(nullable = false)
+    private boolean status = true;
 }

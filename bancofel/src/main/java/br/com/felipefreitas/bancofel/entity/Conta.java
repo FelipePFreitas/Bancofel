@@ -30,4 +30,11 @@ public class Conta {
     @ManyToOne
     @JoinColumn(name = "fk_cliente_id",nullable = false)
     private Cliente cliente;
+
+    public Conta(String numeroConta, String agencia, BigDecimal saldo, Cliente cliente) {
+        this.numeroConta = numeroConta;
+        this.agencia = agencia;
+        this.saldo = saldo;
+        this.cliente = cliente;
+    }
 }

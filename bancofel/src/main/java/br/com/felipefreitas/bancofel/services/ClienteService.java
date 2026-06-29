@@ -1,24 +1,30 @@
 package br.com.felipefreitas.bancofel.services;
 
 import br.com.felipefreitas.bancofel.entity.Cliente;
+import br.com.felipefreitas.bancofel.entity.Conta;
 import br.com.felipefreitas.bancofel.enums.ErrorEnum;
 import br.com.felipefreitas.bancofel.models.ClienteDTO;
 import br.com.felipefreitas.bancofel.repository.ClienteRepository;
+import br.com.felipefreitas.bancofel.repository.ContaRepository;
 import br.com.felipefreitas.bancofel.utils.CEPUtil;
 import br.com.felipefreitas.bancofel.utils.CPFUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @AllArgsConstructor
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final ContaRepository contaRepository;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    @Transactional
     public void cadastrarCliente(Cliente cliente) {
 
         if (cliente.getNome() == null || cliente.getNome().isBlank()) {
@@ -89,12 +95,24 @@ public class ClienteService {
                 || cliente.getCidade().length() > 50 || cliente.getEstado().length() > 50) {
             throw new RuntimeException(ErrorEnum.CARACTERES_ACIMA.getErrorMessage());
         }
+        Cliente clienteSalvo = clienteRepository.save(cliente);
 
-        clienteRepository.save(cliente);
+        String numeroConta = gerarNumeroConta();
+        Conta novaConta = new Conta(numeroConta, "0001", BigDecimal.ZERO, clienteSalvo);
+
+        contaRepository.save(novaConta);
+    }
+
+    public String gerarNumeroConta() {
+        // Gera um número aleatório entre 0 e 999999
+        int numero = ThreadLocalRandom.current().nextInt(0, 10000000);
+
+        // Converte o int diretamente para String
+        return String.format("%06d", numero);
     }
 
     @Transactional(readOnly = true)
-    public ClienteDTO pesquisaCliente(String cpf) {
+    public ClienteDTO pesquisaClienteCpf(String cpf) {
 
         Cliente cliente =
                 clienteRepository.findByCpf(cpf).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
@@ -115,4 +133,5 @@ public class ClienteService {
 
         return clienteDTO;
     }
+
 }
