@@ -40,7 +40,13 @@ public class ContaService {
 
         } while (contaJaExiste); // 3. Se existir, o loop repete, gera outro número e testa de novo.
 
-        Conta novaConta = new Conta(numeroConta, "0001", saldoInicial, cliente);
+        Conta novaConta =
+                Conta.builder()
+                        .numeroConta(numeroConta)
+                        .agencia("0001")
+                        .saldo(BigDecimal.ZERO)
+                        .cliente(cliente)
+                        .build();
 
         return contaRepository.save(novaConta);
     }
@@ -51,5 +57,13 @@ public class ContaService {
 
         // Converte o int diretamente para String
         return String.format("%06d", numero);
+    }
+
+    public BigDecimal consultarSaldo(String numeroConta) {
+
+        Conta conta =
+                contaRepository.findBynumeroConta(numeroConta).orElseThrow(() -> new RuntimeException(ErrorEnum.NUMERO_CONTA_NAO_EXISTE.getErrorMessage()));
+
+        return conta.getSaldo();
     }
 }

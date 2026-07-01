@@ -2,6 +2,7 @@ package br.com.felipefreitas.bancofel.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Conta {
 
     @Id
@@ -31,10 +33,4 @@ public class Conta {
     @JoinColumn(name = "fk_cliente_id",nullable = false)
     private Cliente cliente;
 
-    public Conta(String numeroConta, String agencia, BigDecimal saldo, Cliente cliente) {
-        this.numeroConta = numeroConta;
-        this.agencia = agencia;
-        this.saldo = saldo;
-        this.cliente = cliente;
-    }
 }

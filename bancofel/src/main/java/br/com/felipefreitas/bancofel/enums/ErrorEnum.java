@@ -16,14 +16,14 @@ public enum ErrorEnum {
     // Erros de Conta (Faixa 100-109)
     SALDO_NEGATIVO_NULO(400,100,"Saldo não pode ser null ou menor que zero"),
 
-    CLIENTE_NAO_LOGADO(401,101,"Cliente não está autenticado no sistema"), // 401 faz mais sentido para Não Logado
+    NUMERO_CONTA_NAO_EXISTE(401,101,"Número da conta não existe"), // 401 faz mais sentido para Não Logado
 
     ACESSO_NEGADO(403,104,"Você não tem permissão para acessar ou alterar este recurso"), // 403 é o padrão para Acesso Negado
 
-    // Erros de Pedido e Fluxo (Faixa 200+)
-    PEDIDO_NAO_ENCONTRADO(400,200,"Pedido não encontrado"),
+    // Erros de Transação (Faixa 200+)
+    SAQUE_NULO_ZERO(400,200,"Valor de saque não pode ser nulo ou menor e igual que zero"),
 
-    PEDIDO_COM_STATUS_INVALIDO(400,201,"O status atual do pedido não permite realizar esta operação"),
+    SAQUE_VALOR_MAIOR_SALDO(400,201,"Valor de saque maior que saldo atual"),
 
     PAGAMENTO_STATUS_INVALIDO(400,202,"O pedido precisa estar em estado de pagamento para ser pago");
 
