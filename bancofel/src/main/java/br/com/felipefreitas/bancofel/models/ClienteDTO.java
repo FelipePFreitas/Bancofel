@@ -2,6 +2,7 @@ package br.com.felipefreitas.bancofel.models;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,28 +25,31 @@ public class ClienteDTO {
     @NotBlank(message = "O cpf não pode estar em branco")
     private String cpf;
 
-    @NotBlank(message = "O não pode estar em branco")
+    @NotBlank(message = "não pode estar em branco")
     private LocalDate dataNascimento;
 
-    @NotBlank(message = "O não pode estar em branco")
+    @NotBlank(message = "não pode estar em branco")
     private String logradouro;
 
-    @NotBlank(message = "O não pode estar em branco")
+    @NotBlank(message = "não pode estar em branco")
     private String endereco;
 
-    @NotBlank(message = "O não pode estar em branco")
+    @NotBlank(message = "não pode estar em branco")
     private String numero;
 
-    @NotBlank(message = "O não pode estar em branco")
+    @NotBlank(message = "não pode estar em branco")
     private String bairro;
 
-    @NotBlank(message = "O não pode estar em branco")
+    @NotBlank(message = "não pode estar em branco")
     private String cep;
 
-    @NotBlank(message = "O não pode estar em branco")
+    @NotBlank(message = "não pode estar em branco")
     private String cidade;
 
-    @NotBlank(message = "O não pode estar em branco")
+    @NotBlank(message = "não pode estar em branco")
     private String estado;
+
+    @NotNull(message = "Status não pode ser nulo")
+    private boolean status = true;
 
 }

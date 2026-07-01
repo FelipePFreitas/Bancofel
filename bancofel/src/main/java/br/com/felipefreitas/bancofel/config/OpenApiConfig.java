@@ -10,7 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Bancofel",
+                title = "Bancofel - " +
+                        "O dinheiro evoluiu. A forma de integrar também. Bancofel: a API que acelera o seu ecossistema financeiro.",
                 version = "1.0.0",
                 description = "API RESTful para gerenciamento de um ecossistema de Banco, " +
                               "permitindo o controle dos clientes,contas e transações",
@@ -26,7 +27,6 @@ import org.springframework.context.annotation.Configuration;
         ),
         servers = {
                 @Server(url = "http://localhost:8080", description = "Servidor de Desenvolvimento"),
-                @Server(url = "https://api.miniecommerce.com", description = "Servidor de Produção")
         }
 )
 public class OpenApiConfig {

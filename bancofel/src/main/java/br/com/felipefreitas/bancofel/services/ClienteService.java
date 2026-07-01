@@ -151,6 +151,7 @@ public class ClienteService {
         clienteDTO.setCep(cliente.getCep());
         clienteDTO.setCidade(cliente.getCidade());
         clienteDTO.setEstado(cliente.getEstado());
+        clienteDTO.setStatus(cliente.isStatus());
 
         return clienteDTO;
     }
