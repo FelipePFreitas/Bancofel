@@ -1,5 +1,7 @@
 # BancoFel API 🏦
 
+O dinheiro evoluiu. A forma de integrar também. Bancofel: a API que acelera o seu ecossistema financeiro.
+
 O **BancoFel** é uma API RESTful de nível profissional que simula o ecossistema de um banco digital moderno. O sistema gerencia o cadastro de clientes, a abertura e controle de contas bancárias, e o processamento de movimentações financeiras com foco em segurança de dados, validações severas e integridade transacional.
 
 ---
