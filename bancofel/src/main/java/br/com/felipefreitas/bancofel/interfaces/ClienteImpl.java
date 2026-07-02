@@ -2,7 +2,7 @@ package br.com.felipefreitas.bancofel.interfaces;
 
 import br.com.felipefreitas.bancofel.entity.Cliente;
 
-public interface ClienteService<T extends Cliente> {
+public interface ClienteImpl<T extends Cliente> {
 
     T cadastrarCliente(T cliente);
 

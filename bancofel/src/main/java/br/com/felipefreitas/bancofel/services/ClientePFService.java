@@ -3,7 +3,7 @@ package br.com.felipefreitas.bancofel.services;
 import br.com.felipefreitas.bancofel.entity.ClientePF;
 import br.com.felipefreitas.bancofel.entity.Conta;
 import br.com.felipefreitas.bancofel.enums.ErrorEnum;
-import br.com.felipefreitas.bancofel.interfaces.ClienteService;
+import br.com.felipefreitas.bancofel.interfaces.ClienteImpl;
 import br.com.felipefreitas.bancofel.repository.ClienteRepository;
 import br.com.felipefreitas.bancofel.utils.CEPUtil;
 import br.com.felipefreitas.bancofel.utils.CPFUtil;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class ClientePFService implements ClienteService<ClientePF> {
+public class ClientePFService implements ClienteImpl<ClientePF> {
 
     private final ContaService contaService;
     private final ClienteRepository clienteRepository;
