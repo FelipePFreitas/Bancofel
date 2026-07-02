@@ -1,11 +1,10 @@
 package br.com.felipefreitas.bancofel.services;
 
-import br.com.felipefreitas.bancofel.entity.Cliente;
+import br.com.felipefreitas.bancofel.entity.ClientePF;
 import br.com.felipefreitas.bancofel.entity.Conta;
 import br.com.felipefreitas.bancofel.enums.ErrorEnum;
-import br.com.felipefreitas.bancofel.models.ClienteDTO;
+import br.com.felipefreitas.bancofel.interfaces.ClienteService;
 import br.com.felipefreitas.bancofel.repository.ClienteRepository;
-import br.com.felipefreitas.bancofel.repository.ContaRepository;
 import br.com.felipefreitas.bancofel.utils.CEPUtil;
 import br.com.felipefreitas.bancofel.utils.CPFUtil;
 import lombok.AllArgsConstructor;
@@ -14,31 +13,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Service
 @AllArgsConstructor
-public class ClienteService {
+public class ClientePFService implements ClienteService<ClientePF> {
 
-    private final ClienteRepository clienteRepository;
-    private final ContaRepository contaRepository;
     private final ContaService contaService;
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final ClienteRepository clienteRepository;
 
+    @Override
     @Transactional
-    public void cadastrarCliente(Cliente cliente) {
+    public ClientePF cadastrarCliente(ClientePF cliente) {
         log.info("Iniciando cadastro do cliente com CPF: {}", cliente.getCpf());
         if (cliente.getNome() == null || cliente.getNome().isBlank()) {
             throw new RuntimeException(ErrorEnum.NULO_BRANCO.getErrorMessage());
         }
 
-        if (cliente.getSobrenome() == null || cliente.getSobrenome().isBlank()) {
-            throw new RuntimeException(ErrorEnum.NULO_BRANCO.getErrorMessage());
-        }
-
-        if (cliente.getNome().length() > 100 || cliente.getSobrenome().length() > 100) {
+        if (cliente.getNome().length() > 100) {
             throw new RuntimeException(ErrorEnum.CARACTERES_ACIMA.getErrorMessage());
         }
 
@@ -98,46 +90,31 @@ public class ClienteService {
                 || cliente.getCidade().length() > 50 || cliente.getEstado().length() > 50) {
             throw new RuntimeException(ErrorEnum.CARACTERES_ACIMA.getErrorMessage());
         }
-        Cliente clienteSalvo = clienteRepository.save(cliente);
+        ClientePF clienteSalvo = clienteRepository.save(cliente);
 
         Conta novaConta = contaService.criarConta(clienteSalvo, BigDecimal.ZERO);
 
 
         log.info("Cliente com CPF: {} cadastrado com sucesso! Conta bancária gerada: {}", clienteSalvo.getCpf(),
                 novaConta.getNumeroConta());
+
+        return clienteSalvo;
     }
 
-
+    @Override
     @Transactional(readOnly = true)
-    public ClienteDTO pesquisaClienteCpf(String cpf) {
+    public ClientePF pesquisaClientePorDocumento(String documento) {
+        return clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
-        Cliente cliente =
-                clienteRepository.findByCpf(cpf).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
-
-        ClienteDTO clienteDTO = new ClienteDTO();
-
-        clienteDTO.setNome(cliente.getNome());
-        clienteDTO.setSobrenome(cliente.getSobrenome());
-        clienteDTO.setCpf(cliente.getCpf());
-        clienteDTO.setDataNascimento(LocalDate.parse(cliente.getDataNascimento().format(formatter)));
-        clienteDTO.setLogradouro(cliente.getLogradouro());
-        clienteDTO.setEndereco(cliente.getEndereco());
-        clienteDTO.setNumero(cliente.getNumero());
-        clienteDTO.setBairro(cliente.getBairro());
-        clienteDTO.setCep(cliente.getCep());
-        clienteDTO.setCidade(cliente.getCidade());
-        clienteDTO.setEstado(cliente.getEstado());
-        clienteDTO.setStatus(cliente.isStatus());
-
-        return clienteDTO;
     }
 
+    @Override
     @Transactional
-    public Cliente atualizarDadosCliente(String cpf, Cliente cliente) {
-        log.info("Iniciando a atualização dos dados do cliente com CPF: {}", cpf);
+    public ClientePF atualizarDadosCliente(String documento, ClientePF cliente) {
+        log.info("Iniciando a atualização dos dados do cliente com CPF: {}", documento);
 
-        Cliente clienteExistente =
-                clienteRepository.findByCpf(cpf).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+        ClientePF clienteExistente =
+                clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
 
         if (!CPFUtil.isValid(cliente.getCpf())) {
@@ -149,9 +126,8 @@ public class ClienteService {
         }
 
         clienteExistente.setNome(cliente.getNome());
-        clienteExistente.setSobrenome(cliente.getSobrenome());
         clienteExistente.setCpf(cliente.getCpf());
-        clienteExistente.setDataNascimento(LocalDate.parse(cliente.getDataNascimento().format(formatter)));
+        clienteExistente.setDataNascimento(cliente.getDataNascimento());
         clienteExistente.setLogradouro(cliente.getLogradouro());
         clienteExistente.setEndereco(cliente.getEndereco());
         clienteExistente.setNumero(cliente.getNumero());
@@ -160,41 +136,42 @@ public class ClienteService {
         clienteExistente.setCidade(cliente.getCidade());
         clienteExistente.setEstado(cliente.getEstado());
 
-        Cliente clienteAtualizado = clienteRepository.save(clienteExistente);
+        ClientePF clienteAtualizado = clienteRepository.save(clienteExistente);
 
-        log.info("Dados do cliente com CPF: {} atualizados com sucesso.", cpf);
+        log.info("Dados do cliente com CPF: {} atualizados com sucesso.", documento);
 
         return clienteAtualizado;
     }
 
+    @Override
     @Transactional
-    public void softDeleteCliente(String cpf) {
-
-        Cliente clienteExistente =
-                clienteRepository.findByCpf(cpf).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+    public ClientePF softDeleteCliente(String documento) {
+        ClientePF clienteExistente =
+                clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
         clienteExistente.setStatus(false);
 
         clienteRepository.save(clienteExistente);
 
-        log.info("Cliente com CPF: {} foi desativado com sucesso (status = false).", cpf);
+        log.info("Cliente com CPF: {} foi desativado com sucesso (status = false).", documento);
+
+        return clienteExistente;
     }
 
+    @Override
     @Transactional
-    public void reativarCliente(String cpf) {
-
-        Cliente clienteExistente =
-                clienteRepository.findByCpf(cpf).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+    public ClientePF reativarCliente(String documento) {
+        ClientePF clienteExistente =
+                clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
         if (!clienteExistente.isStatus()) {
             clienteExistente.setStatus(true);
         }
 
         clienteRepository.save(clienteExistente);
-        log.info("Cliente com CPF: {} foi reativado com sucesso (status = true).", cpf);
 
+        log.info("Cliente com CPF: {} foi reativado com sucesso (status = true).", documento);
 
+        return clienteExistente;
     }
-
-
 }

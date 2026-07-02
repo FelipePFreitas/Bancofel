@@ -22,9 +22,6 @@ public abstract class Cliente {
     @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(nullable = false, length = 100)
-    private String sobrenome;
-
     @Column(nullable = false, length = 50)
     private String logradouro;
 
