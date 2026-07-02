@@ -15,17 +15,14 @@ public enum ErrorEnum {
 
     // Erros de Conta (Faixa 100-109)
     SALDO_NEGATIVO_NULO(400,100,"Saldo não pode ser null ou menor que zero"),
-
     NUMERO_CONTA_NAO_EXISTE(401,101,"Número da conta não existe"), // 401 faz mais sentido para Não Logado
-
-    ACESSO_NEGADO(403,104,"Você não tem permissão para acessar ou alterar este recurso"), // 403 é o padrão para Acesso Negado
+    SALDO_INSUFICIENTE(403,104,"Saldo insuficiente para transferência"), // 403 é o padrão para
+    // Acesso Negado
 
     // Erros de Transação (Faixa 200+)
     SAQUE_NULO_ZERO(400,200,"Valor de saque não pode ser nulo ou menor e igual que zero"),
-
     SAQUE_VALOR_MAIOR_SALDO(400,201,"Valor de saque maior que saldo atual"),
-
-    PAGAMENTO_STATUS_INVALIDO(400,202,"O pedido precisa estar em estado de pagamento para ser pago");
+    DEPOSITO_NULO_ZERO(400,202,"Valor de deposito não pode ser nulo ou menor e igual que zero");
 
     private final int httpStatus;
     private final int errorCode;

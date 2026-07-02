@@ -32,5 +32,4 @@ public class Conta {
     @ManyToOne
     @JoinColumn(name = "fk_cliente_id",nullable = false)
     private Cliente cliente;
-
 }

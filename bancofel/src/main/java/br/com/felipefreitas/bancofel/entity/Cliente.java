@@ -5,14 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "clientes")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Cliente {
+public abstract class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,12 +24,6 @@ public class Cliente {
 
     @Column(nullable = false, length = 100)
     private String sobrenome;
-
-    @Column(unique = true, length = 20)
-    private String cpf;
-
-    @Column(nullable = false)
-    private LocalDate dataNascimento;
 
     @Column(nullable = false, length = 50)
     private String logradouro;
@@ -50,6 +45,9 @@ public class Cliente {
 
     @Column(nullable = false, length = 50)
     private String estado;
+
+    @OneToMany(mappedBy = "cliente")
+    private List<Conta> contas;
 
     @Column(nullable = false)
     private boolean status = true;
