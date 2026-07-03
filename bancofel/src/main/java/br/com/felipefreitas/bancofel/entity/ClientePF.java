@@ -1,15 +1,12 @@
 package br.com.felipefreitas.bancofel.entity;
 
-import br.com.felipefreitas.bancofel.enums.ClienteTipo;
-import br.com.felipefreitas.bancofel.enums.TipoTransacao;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "cliente_pf")

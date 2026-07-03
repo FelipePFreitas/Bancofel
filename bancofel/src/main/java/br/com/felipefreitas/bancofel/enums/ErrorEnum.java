@@ -17,7 +17,9 @@ public enum ErrorEnum {
     // Erros de Conta (Faixa 100-109)
     SALDO_NEGATIVO_NULO(400, 100, "Saldo não pode ser null ou menor que zero"),
     NUMERO_CONTA_NAO_EXISTE(404, 101, "Número da conta não existe"), // ✨ Corrigido para 404 Not Found
-    SALDO_INSUFICIENTE(422, 104, "Saldo insuficiente para transferência"), // ✨ Corrigido para 422 Unprocessable Entity
+    SALDO_INSUFICIENTE(422, 102, "Saldo insuficiente para transferência"),
+    LIMITE_CHAVEPIX(422, 103, "Limite máximo de chaves atingido"),
+    CHAVEPIX_JACADASTRADA(422, 104, "Essa chave pix já foi cadastrada nessa conta"),// ✨ Corrigido para 422 Unprocessable Entity
 
     // Erros de Transação (Faixa 200+)
     SAQUE_NULO_ZERO(400, 200, "Valor de saque não pode ser nulo ou menor e igual que zero"),
