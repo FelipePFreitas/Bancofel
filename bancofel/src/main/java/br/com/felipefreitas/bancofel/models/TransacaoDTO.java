@@ -1,6 +1,5 @@
 package br.com.felipefreitas.bancofel.models;
 
-import br.com.felipefreitas.bancofel.entity.Conta;
 import br.com.felipefreitas.bancofel.enums.TipoTransacao;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

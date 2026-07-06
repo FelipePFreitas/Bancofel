@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum ErrorEnum {
     // Erros de Cliente (Faixa 0-9) - 400 Bad Request (Dados mal formatados)
     CPF_INVALIDO(400, 0, "CPF inválido"),
+    CNPJ_INVALIDO(400, 0, "CNPJ inválido"),
     CLIENTE_JA_CADASTRADO(400, 1, "Cadastro do cliente já existente"),
     CARACTERES_ACIMA(400, 2, "Excesso de caracteres"),
     NULO_BRANCO(400, 3, "Não pode estar em branco ou nulo"),
@@ -13,6 +14,7 @@ public enum ErrorEnum {
     DATA_NASCIMENTO_NULO_BRANCO(400, 5, "A data de nascimento não pode estar em branco ou nulo"),
     CEP_INVALIDO(400, 6, "CEP inválido"),
     TIPO_CLIENTE_INVALIDO(400, 7, "Tipo de cliente inválido"),
+    CNPJ_NULO_BRANCO(400, 4, "O CPF não pode estar em branco ou nulo"),
 
     // Erros de Conta (Faixa 100-109)
     SALDO_NEGATIVO_NULO(400, 100, "Saldo não pode ser null ou menor que zero"),
