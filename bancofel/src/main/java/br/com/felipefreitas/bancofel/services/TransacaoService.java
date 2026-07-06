@@ -91,10 +91,10 @@ public class TransacaoService {
         if (conta1.getSaldo().compareTo(valorTransferencia) < 0) {
             throw new RuntimeException(ErrorEnum.SALDO_INSUFICIENTE.getErrorMessage());
         } else {
-           BigDecimal valorConta1 = conta1.getSaldo().subtract(valorTransferencia);
-           conta1.setSaldo(valorConta1);
-           BigDecimal valorConta2 = conta2.getSaldo().add(valorTransferencia);
-           conta2.setSaldo(valorConta2);
+            BigDecimal valorConta1 = conta1.getSaldo().subtract(valorTransferencia);
+            conta1.setSaldo(valorConta1);
+            BigDecimal valorConta2 = conta2.getSaldo().add(valorTransferencia);
+            conta2.setSaldo(valorConta2);
         }
 
         contaRepository.save(conta1);
@@ -108,5 +108,44 @@ public class TransacaoService {
                 .build();
 
         transacaoRepository.save(transacaoTransferencia);
+        log.info("A transferência de R$ {} realizado com sucesso da conta {} para a conta {}", valorTransferencia,
+                contaOrigem, contaDestino);
+    }
+
+    @Transactional
+    public void pix(String contaOrigem, String chavePix, BigDecimal valorTransferencia) {
+
+        Conta conta1 =
+                contaRepository.findByNumeroConta(contaOrigem).orElseThrow(() -> new RuntimeException(ErrorEnum.NUMERO_CONTA_NAO_EXISTE.getErrorMessage()));
+
+        Conta conta2 =
+                contaRepository.findByChavePix(chavePix).orElseThrow(() -> new RuntimeException(ErrorEnum.CHAVEPIX_INEXISTENTE.getErrorMessage()));
+
+        if (valorTransferencia == null || valorTransferencia.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException(ErrorEnum.SALDO_NEGATIVO_NULO.getErrorMessage());
+        }
+
+
+        if (conta1.getSaldo().compareTo(valorTransferencia) < 0) {
+            throw new RuntimeException(ErrorEnum.SALDO_INSUFICIENTE.getErrorMessage());
+        } else {
+            BigDecimal valorConta1 = conta1.getSaldo().subtract(valorTransferencia);
+            conta1.setSaldo(valorConta1);
+            BigDecimal valorConta2 = conta2.getSaldo().add(valorTransferencia);
+            conta2.setSaldo(valorConta2);
+        }
+
+        contaRepository.save(conta1);
+        contaRepository.save(conta2);
+
+        Transacao transacaoTransferencia = Transacao.builder()
+                .tipoTransacao(TipoTransacao.PIX)
+                .valor(valorTransferencia)
+                .contaOrigem(conta1)
+                .contaDestino(conta2)
+                .build();
+
+        transacaoRepository.save(transacaoTransferencia);
+        log.info("Pix de R$ {} realizado com sucesso da conta {} para a chave {}", valorTransferencia, contaOrigem, chavePix);
     }
 }

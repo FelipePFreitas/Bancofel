@@ -21,7 +21,9 @@ public enum ErrorEnum {
     NUMERO_CONTA_NAO_EXISTE(404, 101, "Número da conta não existe"), // ✨ Corrigido para 404 Not Found
     SALDO_INSUFICIENTE(422, 102, "Saldo insuficiente para transferência"),
     LIMITE_CHAVEPIX(422, 103, "Limite máximo de chaves atingido"),
-    CHAVEPIX_JACADASTRADA(422, 104, "Essa chave pix já foi cadastrada nessa conta"),// ✨ Corrigido para 422 Unprocessable Entity
+    CHAVEPIX_JACADASTRADA(422, 104, "Essa chave pix já foi cadastrada nessa conta"),
+    CHAVEPIX_INEXISTENTE(422, 103, "Chave pix não existe"),
+
 
     // Erros de Transação (Faixa 200+)
     SAQUE_NULO_ZERO(400, 200, "Valor de saque não pode ser nulo ou menor e igual que zero"),
