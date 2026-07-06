@@ -5,6 +5,7 @@ import br.com.felipefreitas.bancofel.entity.Conta;
 import br.com.felipefreitas.bancofel.enums.ClienteTipo;
 import br.com.felipefreitas.bancofel.enums.ErrorEnum;
 import br.com.felipefreitas.bancofel.interfaces.ClienteImpl;
+import br.com.felipefreitas.bancofel.models.ClientePFDTO;
 import br.com.felipefreitas.bancofel.repository.ClienteRepository;
 import br.com.felipefreitas.bancofel.utils.CEPUtil;
 import br.com.felipefreitas.bancofel.utils.CPFUtil;
@@ -18,14 +19,14 @@ import java.math.BigDecimal;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class ClientePFService implements ClienteImpl<ClientePF> {
+public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
 
     private final ContaService contaService;
     private final ClienteRepository clienteRepository;
 
     @Override
     @Transactional
-    public ClientePF cadastrarCliente(ClientePF cliente) {
+    public ClientePFDTO cadastrarCliente(ClientePF cliente) {
         log.info("Iniciando cadastro do cliente com CPF: {}", cliente.getCpf());
 
         if (cliente.getClienteTipo() != ClienteTipo.PESSOA_FISICA) {
@@ -99,25 +100,51 @@ public class ClientePFService implements ClienteImpl<ClientePF> {
         }
         ClientePF clienteSalvo = clienteRepository.save(cliente);
 
+        ClientePFDTO clientePFDTO = ClientePFDTO.builder()
+                .nome(cliente.getNome())
+                .cpf(cliente.getCpf())
+                .dataNascimento(cliente.getDataNascimento())
+                .logradouro(cliente.getLogradouro())
+                .endereco(cliente.getEndereco())
+                .numero(cliente.getNumero())
+                .cep(cliente.getCep())
+                .bairro(cliente.getBairro())
+                .cidade(cliente.getCidade())
+                .estado(cliente.getEstado())
+                .build();
+
         Conta novaConta = contaService.criarConta(clienteSalvo, BigDecimal.ZERO);
 
 
         log.info("Cliente com CPF: {} cadastrado com sucesso! Conta bancária gerada: {}", clienteSalvo.getCpf(),
                 novaConta.getNumeroConta());
 
-        return clienteSalvo;
+        return clientePFDTO;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ClientePF pesquisaClientePorDocumento(String documento) {
-        return clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+    public ClientePFDTO pesquisaClientePorDocumento(String documento) {
 
+        ClientePF clientePF = clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+
+        return ClientePFDTO.builder()
+                .nome(clientePF.getNome())
+                .cpf(clientePF.getCpf())
+                .dataNascimento(clientePF.getDataNascimento())
+                .logradouro(clientePF.getLogradouro())
+                .endereco(clientePF.getEndereco())
+                .numero(clientePF.getNumero())
+                .cep(clientePF.getCep())
+                .bairro(clientePF.getBairro())
+                .cidade(clientePF.getCidade())
+                .estado(clientePF.getEstado())
+                .build();
     }
 
     @Override
     @Transactional
-    public ClientePF atualizarDadosCliente(String documento, ClientePF cliente) {
+    public ClientePFDTO atualizarDadosCliente(String documento, ClientePF cliente) {
         log.info("Iniciando a atualização dos dados do cliente com CPF: {}", documento);
 
         ClientePF clienteExistente =
@@ -145,14 +172,27 @@ public class ClientePFService implements ClienteImpl<ClientePF> {
 
         ClientePF clienteAtualizado = clienteRepository.save(clienteExistente);
 
+        ClientePFDTO clientePFDTO = ClientePFDTO.builder()
+                .nome(clienteAtualizado.getNome())
+                .cpf(clienteAtualizado.getCpf())
+                .dataNascimento(clienteAtualizado.getDataNascimento())
+                .logradouro(clienteAtualizado.getLogradouro())
+                .endereco(clienteAtualizado.getEndereco())
+                .numero(clienteAtualizado.getNumero())
+                .cep(clienteAtualizado.getCep())
+                .bairro(clienteAtualizado.getBairro())
+                .cidade(clienteAtualizado.getCidade())
+                .estado(clienteAtualizado.getEstado())
+                .build();
+
         log.info("Dados do cliente com CPF: {} atualizados com sucesso.", documento);
 
-        return clienteAtualizado;
+        return clientePFDTO;
     }
 
     @Override
     @Transactional
-    public ClientePF softDeleteCliente(String documento) {
+    public ClientePFDTO softDeleteCliente(String documento) {
         ClientePF clienteExistente =
                 clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
@@ -162,12 +202,23 @@ public class ClientePFService implements ClienteImpl<ClientePF> {
 
         log.info("Cliente com CPF: {} foi desativado com sucesso (status = false).", documento);
 
-        return clienteExistente;
+        return ClientePFDTO.builder()
+                .nome(clienteExistente.getNome())
+                .cpf(clienteExistente.getCpf())
+                .dataNascimento(clienteExistente.getDataNascimento())
+                .logradouro(clienteExistente.getLogradouro())
+                .endereco(clienteExistente.getEndereco())
+                .numero(clienteExistente.getNumero())
+                .cep(clienteExistente.getCep())
+                .bairro(clienteExistente.getBairro())
+                .cidade(clienteExistente.getCidade())
+                .estado(clienteExistente.getEstado())
+                .build();
     }
 
     @Override
     @Transactional
-    public ClientePF reativarCliente(String documento) {
+    public ClientePFDTO reativarCliente(String documento) {
         ClientePF clienteExistente =
                 clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
@@ -179,6 +230,17 @@ public class ClientePFService implements ClienteImpl<ClientePF> {
 
         log.info("Cliente com CPF: {} foi reativado com sucesso (status = true).", documento);
 
-        return clienteExistente;
+        return ClientePFDTO.builder()
+                .nome(clienteExistente.getNome())
+                .cpf(clienteExistente.getCpf())
+                .dataNascimento(clienteExistente.getDataNascimento())
+                .logradouro(clienteExistente.getLogradouro())
+                .endereco(clienteExistente.getEndereco())
+                .numero(clienteExistente.getNumero())
+                .cep(clienteExistente.getCep())
+                .bairro(clienteExistente.getBairro())
+                .cidade(clienteExistente.getCidade())
+                .estado(clienteExistente.getEstado())
+                .build();
     }
 }

@@ -1,12 +1,8 @@
 package br.com.felipefreitas.bancofel.models;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -14,13 +10,11 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClienteDTO {
+@Builder
+public class ClientePFDTO {
 
     @NotBlank(message = "O nome não pode estar em branco")
     private String nome;
-
-    @NotBlank(message = "O sobrenome não pode estar em branco")
-    private String sobrenome;
 
     @NotBlank(message = "O cpf não pode estar em branco")
     private String cpf;

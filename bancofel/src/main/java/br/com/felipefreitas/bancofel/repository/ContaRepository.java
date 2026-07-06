@@ -18,3 +18,4 @@ public interface ContaRepository extends JpaRepository<Conta,Long> {
     @Query("SELECT c FROM Conta c JOIN c.chavesPix cp WHERE cp = :chavePix")
     Optional<Conta> findByChavePix(@Param("chavePix") String chavesPix);
 }
+
