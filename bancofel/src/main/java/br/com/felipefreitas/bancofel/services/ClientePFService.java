@@ -6,7 +6,7 @@ import br.com.felipefreitas.bancofel.enums.ClienteTipo;
 import br.com.felipefreitas.bancofel.enums.ErrorEnum;
 import br.com.felipefreitas.bancofel.interfaces.ClienteImpl;
 import br.com.felipefreitas.bancofel.models.ClientePFDTO;
-import br.com.felipefreitas.bancofel.repository.ClienteRepository;
+import br.com.felipefreitas.bancofel.repository.ClientePFRepository;
 import br.com.felipefreitas.bancofel.utils.CEPUtil;
 import br.com.felipefreitas.bancofel.utils.CPFUtil;
 import lombok.AllArgsConstructor;
@@ -22,16 +22,14 @@ import java.math.BigDecimal;
 public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
 
     private final ContaService contaService;
-    private final ClienteRepository clienteRepository;
+    private final ClientePFRepository clientePFRepository;
 
     @Override
     @Transactional
     public ClientePFDTO cadastrarCliente(ClientePF cliente) {
         log.info("Iniciando cadastro do cliente com CPF: {}", cliente.getCpf());
 
-        if (cliente.getClienteTipo() != ClienteTipo.PESSOA_FISICA) {
-            throw new RuntimeException(ErrorEnum.TIPO_CLIENTE_INVALIDO.getErrorMessage());
-        }
+        cliente.setClienteTipo(ClienteTipo.PESSOA_FISICA);
 
         if (cliente.getNome() == null || cliente.getNome().isBlank()) {
             throw new RuntimeException(ErrorEnum.NULO_BRANCO.getErrorMessage());
@@ -50,7 +48,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
             throw new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage());
         }
 
-        if (clienteRepository.existsByCpf(cliente.getCpf())) {
+        if (clientePFRepository.existsByCpf(cliente.getCpf())) {
             throw new RuntimeException(ErrorEnum.CLIENTE_JA_CADASTRADO.getErrorMessage());
         }
 
@@ -98,7 +96,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
                 || cliente.getCidade().length() > 50 || cliente.getEstado().length() > 50) {
             throw new RuntimeException(ErrorEnum.CARACTERES_ACIMA.getErrorMessage());
         }
-        ClientePF clienteSalvo = clienteRepository.save(cliente);
+        ClientePF clienteSalvo = clientePFRepository.save(cliente);
 
         ClientePFDTO clientePFDTO = ClientePFDTO.builder()
                 .nome(cliente.getNome())
@@ -111,6 +109,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
                 .bairro(cliente.getBairro())
                 .cidade(cliente.getCidade())
                 .estado(cliente.getEstado())
+                .status(cliente.isStatus())
                 .build();
 
         Conta novaConta = contaService.criarConta(clienteSalvo, BigDecimal.ZERO);
@@ -126,7 +125,8 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
     @Transactional(readOnly = true)
     public ClientePFDTO pesquisaClientePorDocumento(String documento) {
 
-        ClientePF clientePF = clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+        ClientePF clientePF =
+                clientePFRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
         return ClientePFDTO.builder()
                 .nome(clientePF.getNome())
@@ -139,6 +139,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
                 .bairro(clientePF.getBairro())
                 .cidade(clientePF.getCidade())
                 .estado(clientePF.getEstado())
+                .status(clientePF.isStatus())
                 .build();
     }
 
@@ -148,7 +149,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
         log.info("Iniciando a atualização dos dados do cliente com CPF: {}", documento);
 
         ClientePF clienteExistente =
-                clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+                clientePFRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
 
         if (!CPFUtil.isValid(cliente.getCpf())) {
@@ -170,7 +171,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
         clienteExistente.setCidade(cliente.getCidade());
         clienteExistente.setEstado(cliente.getEstado());
 
-        ClientePF clienteAtualizado = clienteRepository.save(clienteExistente);
+        ClientePF clienteAtualizado = clientePFRepository.save(clienteExistente);
 
         ClientePFDTO clientePFDTO = ClientePFDTO.builder()
                 .nome(clienteAtualizado.getNome())
@@ -183,6 +184,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
                 .bairro(clienteAtualizado.getBairro())
                 .cidade(clienteAtualizado.getCidade())
                 .estado(clienteAtualizado.getEstado())
+                .status(clienteAtualizado.isStatus())
                 .build();
 
         log.info("Dados do cliente com CPF: {} atualizados com sucesso.", documento);
@@ -194,11 +196,11 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
     @Transactional
     public ClientePFDTO softDeleteCliente(String documento) {
         ClientePF clienteExistente =
-                clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+                clientePFRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
         clienteExistente.setStatus(false);
 
-        clienteRepository.save(clienteExistente);
+        clientePFRepository.save(clienteExistente);
 
         log.info("Cliente com CPF: {} foi desativado com sucesso (status = false).", documento);
 
@@ -213,6 +215,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
                 .bairro(clienteExistente.getBairro())
                 .cidade(clienteExistente.getCidade())
                 .estado(clienteExistente.getEstado())
+                .status(clienteExistente.isStatus())
                 .build();
     }
 
@@ -220,13 +223,13 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
     @Transactional
     public ClientePFDTO reativarCliente(String documento) {
         ClientePF clienteExistente =
-                clienteRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+                clientePFRepository.findByCpf(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
         if (!clienteExistente.isStatus()) {
             clienteExistente.setStatus(true);
         }
 
-        clienteRepository.save(clienteExistente);
+        clientePFRepository.save(clienteExistente);
 
         log.info("Cliente com CPF: {} foi reativado com sucesso (status = true).", documento);
 
@@ -241,6 +244,7 @@ public class ClientePFService implements ClienteImpl<ClientePF, ClientePFDTO> {
                 .bairro(clienteExistente.getBairro())
                 .cidade(clienteExistente.getCidade())
                 .estado(clienteExistente.getEstado())
+                .status(clienteExistente.isStatus())
                 .build();
     }
 }

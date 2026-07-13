@@ -1,6 +1,5 @@
 package br.com.felipefreitas.bancofel;
 
-import br.com.felipefreitas.bancofel.enums.TipoTransacao;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

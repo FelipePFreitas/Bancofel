@@ -20,7 +20,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-
 public class ClientePF extends Cliente {
 
     @Column(unique = true, nullable = false, length = 20)

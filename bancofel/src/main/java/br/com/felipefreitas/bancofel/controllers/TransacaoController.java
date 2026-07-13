@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/transacao")
 @RequiredArgsConstructor

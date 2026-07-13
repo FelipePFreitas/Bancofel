@@ -6,7 +6,7 @@ import br.com.felipefreitas.bancofel.enums.ClienteTipo;
 import br.com.felipefreitas.bancofel.enums.ErrorEnum;
 import br.com.felipefreitas.bancofel.interfaces.ClienteImpl;
 import br.com.felipefreitas.bancofel.models.ClientePJDTO;
-import br.com.felipefreitas.bancofel.repository.ClienteRepository;
+import br.com.felipefreitas.bancofel.repository.ClientePJRepository;
 import br.com.felipefreitas.bancofel.utils.CEPUtil;
 import br.com.felipefreitas.bancofel.utils.CNPJUtil;
 import lombok.AllArgsConstructor;
@@ -22,16 +22,14 @@ import java.math.BigDecimal;
 public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
 
     private final ContaService contaService;
-    private final ClienteRepository clienteRepository;
+    private final ClientePJRepository clientePJRepository;
 
     @Override
     @Transactional
     public ClientePJDTO cadastrarCliente(ClientePJ cliente) {
         log.info("Iniciando cadastro do cliente com CNPJ: {}", cliente.getCnpj());
 
-        if (cliente.getClienteTipo() != ClienteTipo.PESSOA_JURIDICA) {
-            throw new RuntimeException(ErrorEnum.TIPO_CLIENTE_INVALIDO.getErrorMessage());
-        }
+        cliente.setClienteTipo(ClienteTipo.PESSOA_JURIDICA);
 
         if (cliente.getNome() == null || cliente.getNome().isBlank()) {
             throw new RuntimeException(ErrorEnum.NULO_BRANCO.getErrorMessage());
@@ -49,7 +47,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
             throw new RuntimeException(ErrorEnum.CNPJ_INVALIDO.getErrorMessage());
         }
 
-        if (clienteRepository.existsByCnpj(cliente.getCnpj())) {
+        if (clientePJRepository.existsByCnpj(cliente.getCnpj())) {
             throw new RuntimeException(ErrorEnum.CLIENTE_JA_CADASTRADO.getErrorMessage());
         }
 
@@ -97,7 +95,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
                 || cliente.getCidade().length() > 50 || cliente.getEstado().length() > 50) {
             throw new RuntimeException(ErrorEnum.CARACTERES_ACIMA.getErrorMessage());
         }
-        ClientePJ clienteSalvo = clienteRepository.save(cliente);
+        ClientePJ clienteSalvo = clientePJRepository.save(cliente);
 
         ClientePJDTO clientePJDTO = ClientePJDTO.builder()
                 .nome(clienteSalvo.getNome())
@@ -110,6 +108,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
                 .bairro(clienteSalvo.getBairro())
                 .cidade(clienteSalvo.getCidade())
                 .estado(clienteSalvo.getEstado())
+                .status(clienteSalvo.isStatus())
                 .build();
 
 
@@ -127,7 +126,8 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
     @Transactional(readOnly = true)
     public ClientePJDTO pesquisaClientePorDocumento(String documento) {
 
-        ClientePJ clientePJ = clienteRepository.findByCnpj(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CNPJ_INVALIDO.getErrorMessage()));
+        ClientePJ clientePJ =
+                clientePJRepository.findByCnpj(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CNPJ_INVALIDO.getErrorMessage()));
 
         return ClientePJDTO.builder()
                 .nome(clientePJ.getNome())
@@ -140,6 +140,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
                 .bairro(clientePJ.getBairro())
                 .cidade(clientePJ.getCidade())
                 .estado(clientePJ.getEstado())
+                .status(clientePJ.isStatus())
                 .build();
 
     }
@@ -150,7 +151,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
         log.info("Iniciando a atualização dos dados do cliente com CPF: {}", documento);
 
         ClientePJ clienteExistente =
-                clienteRepository.findByCnpj(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
+                clientePJRepository.findByCnpj(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CPF_INVALIDO.getErrorMessage()));
 
 
         if (!CNPJUtil.isValid(cliente.getCnpj())) {
@@ -171,7 +172,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
         clienteExistente.setCidade(cliente.getCidade());
         clienteExistente.setEstado(cliente.getEstado());
 
-        ClientePJ clienteAtualizado = clienteRepository.save(clienteExistente);
+        ClientePJ clienteAtualizado = clientePJRepository.save(clienteExistente);
 
         log.info("Dados do cliente com CNPJ: {} atualizados com sucesso.", documento);
 
@@ -186,6 +187,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
                 .bairro(clienteAtualizado.getBairro())
                 .cidade(clienteAtualizado.getCidade())
                 .estado(clienteAtualizado.getEstado())
+                .status(clienteAtualizado.isStatus())
                 .build();
 
     }
@@ -194,11 +196,11 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
     @Transactional
     public ClientePJDTO softDeleteCliente(String documento) {
         ClientePJ clienteExistente =
-                clienteRepository.findByCnpj(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CNPJ_INVALIDO.getErrorMessage()));
+                clientePJRepository.findByCnpj(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CNPJ_INVALIDO.getErrorMessage()));
 
         clienteExistente.setStatus(false);
 
-        clienteRepository.save(clienteExistente);
+        clientePJRepository.save(clienteExistente);
 
         log.info("Cliente com CNPJ: {} foi desativado com sucesso (status = false).", documento);
 
@@ -213,6 +215,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
                 .bairro(clienteExistente.getBairro())
                 .cidade(clienteExistente.getCidade())
                 .estado(clienteExistente.getEstado())
+                .status(clienteExistente.isStatus())
                 .build();
     }
 
@@ -220,13 +223,13 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
     @Transactional
     public ClientePJDTO reativarCliente(String documento) {
         ClientePJ clienteExistente =
-                clienteRepository.findByCnpj(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CNPJ_INVALIDO.getErrorMessage()));
+                clientePJRepository.findByCnpj(documento).orElseThrow(() -> new RuntimeException(ErrorEnum.CNPJ_INVALIDO.getErrorMessage()));
 
         if (!clienteExistente.isStatus()) {
             clienteExistente.setStatus(true);
         }
 
-        clienteRepository.save(clienteExistente);
+        clientePJRepository.save(clienteExistente);
 
         log.info("Cliente com CNPJ: {} foi reativado com sucesso (status = true).", documento);
 
@@ -241,6 +244,7 @@ public class ClientePJService implements ClienteImpl<ClientePJ, ClientePJDTO> {
                 .bairro(clienteExistente.getBairro())
                 .cidade(clienteExistente.getCidade())
                 .estado(clienteExistente.getEstado())
+                .status(clienteExistente.isStatus())
                 .build();
     }
 }
