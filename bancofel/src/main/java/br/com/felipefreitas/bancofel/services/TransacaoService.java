@@ -4,6 +4,7 @@ import br.com.felipefreitas.bancofel.entity.Conta;
 import br.com.felipefreitas.bancofel.entity.Transacao;
 import br.com.felipefreitas.bancofel.enums.ErrorEnum;
 import br.com.felipefreitas.bancofel.enums.TipoTransacao;
+import br.com.felipefreitas.bancofel.models.TransacaoDTO;
 import br.com.felipefreitas.bancofel.repository.ContaRepository;
 import br.com.felipefreitas.bancofel.repository.TransacaoRepository;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -20,6 +22,7 @@ import java.math.BigDecimal;
 public class TransacaoService {
     private final ContaRepository contaRepository;
     private final TransacaoRepository transacaoRepository;
+
 
     @Transactional
     public BigDecimal saque(String numeroConta, BigDecimal valorSaque) {
@@ -75,7 +78,7 @@ public class TransacaoService {
     }
 
     @Transactional
-    public void transferencia(String contaOrigem, String contaDestino, BigDecimal valorTransferencia) {
+    public TransacaoDTO transferencia(String contaOrigem, String contaDestino, BigDecimal valorTransferencia) {
 
         Conta conta1 =
                 contaRepository.findByNumeroConta(contaOrigem).orElseThrow(() -> new RuntimeException(ErrorEnum.NUMERO_CONTA_NAO_EXISTE.getErrorMessage()));
@@ -107,19 +110,33 @@ public class TransacaoService {
                 .contaDestino(conta2)
                 .build();
 
-        transacaoRepository.save(transacaoTransferencia);
         log.info("A transferência de R$ {} realizado com sucesso da conta {} para a conta {}", valorTransferencia,
                 contaOrigem, contaDestino);
+
+        transacaoRepository.save(transacaoTransferencia);
+
+        return TransacaoDTO.builder()
+                .tipoTransacao(transacaoTransferencia.getTipoTransacao())
+                .valor(transacaoTransferencia.getValor())
+                .contaOrigem(conta1.getNumeroConta())
+                .contaDestino(conta2.getNumeroConta())
+                .dataHoraTransacao(transacaoTransferencia.getDataHoraTransacao())
+                .build();
+
     }
 
     @Transactional
-    public void pix(String contaOrigem, String chavePix, BigDecimal valorTransferencia) {
+    public TransacaoDTO pix(String contaOrigem, String chavePix, BigDecimal valorTransferencia) {
 
         Conta conta1 =
                 contaRepository.findByNumeroConta(contaOrigem).orElseThrow(() -> new RuntimeException(ErrorEnum.NUMERO_CONTA_NAO_EXISTE.getErrorMessage()));
 
         Conta conta2 =
                 contaRepository.findByChavePix(chavePix).orElseThrow(() -> new RuntimeException(ErrorEnum.CHAVEPIX_INEXISTENTE.getErrorMessage()));
+
+        if (conta1.getNumeroConta().equals(conta2.getNumeroConta())) {
+            throw new RuntimeException("Não é possível realizar um Pix para a sua própria conta.");
+        }
 
         if (valorTransferencia == null || valorTransferencia.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuntimeException(ErrorEnum.SALDO_NEGATIVO_NULO.getErrorMessage());
@@ -145,7 +162,26 @@ public class TransacaoService {
                 .contaDestino(conta2)
                 .build();
 
-        transacaoRepository.save(transacaoTransferencia);
         log.info("Pix de R$ {} realizado com sucesso da conta {} para a chave {}", valorTransferencia, contaOrigem, chavePix);
+
+        Transacao transacaoPixSalva = transacaoRepository.save(transacaoTransferencia);
+
+        return TransacaoDTO.builder()
+                .tipoTransacao(transacaoPixSalva.getTipoTransacao())
+                .valor(transacaoPixSalva.getValor())
+                .contaOrigem(conta1.getNumeroConta())
+                .contaDestino(conta2.getNumeroConta())
+                .dataHoraTransacao(transacaoPixSalva.getDataHoraTransacao())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Transacao> listarTransacaoPorTipo(TipoTransacao tipoTransacao) {
+
+        if (tipoTransacao == null) {
+            throw new RuntimeException(ErrorEnum.TIPO_TRANSACAO_INEXISTENTE.getErrorMessage());
+        }
+
+        return transacaoRepository.findByTipoTransacao(tipoTransacao);
     }
 }

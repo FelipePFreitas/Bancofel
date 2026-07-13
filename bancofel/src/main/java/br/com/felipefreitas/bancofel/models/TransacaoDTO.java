@@ -1,12 +1,10 @@
 package br.com.felipefreitas.bancofel.models;
 
+import br.com.felipefreitas.bancofel.entity.Conta;
 import br.com.felipefreitas.bancofel.enums.TipoTransacao;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 
 public class TransacaoDTO {
 
@@ -28,8 +27,8 @@ public class TransacaoDTO {
     private LocalDateTime dataHoraTransacao;
 
     @NotNull(message = "Conta de origem não pode ser nulo")
-    private ContaDTO contaOrigem;
+    private String contaOrigem;
 
 
-    private ContaDTO contaDestino;
+    private String contaDestino;
 }

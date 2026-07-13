@@ -14,7 +14,7 @@ public enum ErrorEnum {
     DATA_NASCIMENTO_NULO_BRANCO(400, 5, "A data de nascimento não pode estar em branco ou nulo"),
     CEP_INVALIDO(400, 6, "CEP inválido"),
     TIPO_CLIENTE_INVALIDO(400, 7, "Tipo de cliente inválido"),
-    CNPJ_NULO_BRANCO(400, 4, "O CPF não pode estar em branco ou nulo"),
+    CNPJ_NULO_BRANCO(400, 8, "O CPF não pode estar em branco ou nulo"),
 
     // Erros de Conta (Faixa 100-109)
     SALDO_NEGATIVO_NULO(400, 100, "Saldo não pode ser null ou menor que zero"),
@@ -22,13 +22,14 @@ public enum ErrorEnum {
     SALDO_INSUFICIENTE(422, 102, "Saldo insuficiente para transferência"),
     LIMITE_CHAVEPIX(422, 103, "Limite máximo de chaves atingido"),
     CHAVEPIX_JACADASTRADA(422, 104, "Essa chave pix já foi cadastrada nessa conta"),
-    CHAVEPIX_INEXISTENTE(422, 103, "Chave pix não existe"),
+    CHAVEPIX_INEXISTENTE(422, 105, "Chave pix não existe"),
 
 
     // Erros de Transação (Faixa 200+)
     SAQUE_NULO_ZERO(400, 200, "Valor de saque não pode ser nulo ou menor e igual que zero"),
     SAQUE_VALOR_MAIOR_SALDO(422, 201, "Valor de saque maior que saldo atual"), // ✨ Corrigido para 422 Unprocessable Entity
-    DEPOSITO_NULO_ZERO(400, 202, "Valor de deposito não pode ser nulo ou menor e igual que zero");
+    DEPOSITO_NULO_ZERO(400, 202, "Valor de deposito não pode ser nulo ou menor e igual que zero"),
+    TIPO_TRANSACAO_INEXISTENTE(400, 203, "Tipo de transação inexistente");
 
     private final int httpStatus;
     private final int errorCode;
