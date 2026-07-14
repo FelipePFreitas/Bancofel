@@ -1,12 +1,10 @@
-package br.com.felipefreitas.bancofel;
+package br.com.felipefreitas.bancofel.services;
 
 import br.com.felipefreitas.bancofel.entity.ClientePF;
 import br.com.felipefreitas.bancofel.entity.Conta;
 import br.com.felipefreitas.bancofel.enums.ErrorEnum;
 import br.com.felipefreitas.bancofel.models.ClientePFDTO;
 import br.com.felipefreitas.bancofel.repository.ClientePFRepository;
-import br.com.felipefreitas.bancofel.services.ClientePFService;
-import br.com.felipefreitas.bancofel.services.ContaService;
 import br.com.felipefreitas.bancofel.utils.CEPUtil;
 import br.com.felipefreitas.bancofel.utils.CPFUtil;
 import org.junit.jupiter.api.AfterEach;
