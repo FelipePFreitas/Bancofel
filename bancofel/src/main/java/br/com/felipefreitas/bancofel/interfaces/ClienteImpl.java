@@ -1,7 +1,5 @@
 package br.com.felipefreitas.bancofel.interfaces;
 
-import br.com.felipefreitas.bancofel.entity.Cliente;
-
 public interface ClienteImpl<E, S> {
 
     S cadastrarCliente(E cliente);
