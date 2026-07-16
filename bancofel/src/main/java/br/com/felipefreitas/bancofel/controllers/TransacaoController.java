@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @Tag(name = "Serviços de transações", description = "Endpoint para controle de transações")
 public class TransacaoController {
 
-    TransacaoService transacaoService;
+    private final TransacaoService transacaoService;
 
     @PutMapping("/saque/{numeroConta}")
     @Operation(summary = "Saque", description = "Realiza o saque da conta estabelecida")
