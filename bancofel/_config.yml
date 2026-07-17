@@ -1,0 +1,9 @@
+# _config.yml
+
+# Diz ao Jekyll para ignorar estas pastas durante o build do GitHub Pages
+exclude:
+  - frontend/node_modules/
+  - node_modules/
+  - vendor/
+  - Gemfile
+  - Gemfile.lock
