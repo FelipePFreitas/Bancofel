@@ -1,7 +1,6 @@
 exclude:
-  - frontend/
-  - bancofel/frontend/
-  - node_modules/
-  - vendor/
-  - Gemfile
-  - Gemfile.lock
+    - bancofel/frontend/
+    - node_modules/
+    - vendor/
+    - Gemfile
+    - Gemfile.lock
